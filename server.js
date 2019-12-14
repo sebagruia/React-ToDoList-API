@@ -79,21 +79,41 @@ app.post('/login', (req, res) => {
 app.post('/register', (req, res) => {
     const { name, email, password } = req.body;
     // ===This function hashes the password===
-    // bcrypt.genSalt(10, function(err, salt) {
-    //     bcrypt.hash(password, salt, function(err, hash) {
+    //    bcrypt.genSalt(10, function(err, salt) {
+    //         bcrypt.hash(password, salt, function(err, hash) {
+    //             return hash
+    //         });
+
     //     });
-    // });
+    let salt = bcrypt.genSaltSync(10);
+    let hash = bcrypt.hashSync(password, salt);
     // =========================================
-    db('users')
-        .returning('*')//A knex function - is returning the "user" to be inserted
-        .insert({
-            name: name,
-            email: email,
-            container: [],
-            joined: new Date()
+    db.transaction(trx => {//this function connects the 2 tables from postgress: "users" and "login"
+        trx.insert({
+            hash: hash,
+            email: email
         })
-        .then(user => res.json(user[0]))
-        .catch(err => res.status(400).json('Unable to Register. User allready exists'));
+            .into('login')
+            .returning('email')
+            .then(loginEmail => {
+               return trx.insert({
+                    name: name,
+                    email: loginEmail[0], //loginEmail[0] because in this way we are selecting the the Object from the Array
+                    container: [],
+                    joined: new Date()
+                })
+                    .into('users')
+                    .returning('*')//A knex function - is returning the "user" to be inserted
+                    .then(user => res.json(user[0]))
+
+
+            })
+            .then(trx.commit)
+            .catch(trx.rollback)
+    })
+    .catch(err => res.status(400).json('Unable to Register. User allready exists'));
+        
+
 
 
 });
@@ -106,12 +126,24 @@ app.get('/profile/:id', (req, res) => {
                 res.json(user[0]);
             }
             else {
-                res.json('User Not Found');
+                res.status(404).json('User Not Found');
             }
         })
         .catch(err => res.json('Error Getting User'));
 });
 
+
+// app.put('/list', (req,res)=>{
+//     const {id} = req.body;
+
+//     db('users')
+//   .where({id:id})
+//   .update({
+//     status: 'archived',
+//     thisKeyIsSkipped: undefined
+//   })
+
+// });
 
 
 // // Load hash from your password DB.

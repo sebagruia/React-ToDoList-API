@@ -77,11 +77,11 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-    const { name, email, password } = req.body;
+    let { name, email, password } = req.body;
     // ===This function hashes the password===
     //    bcrypt.genSalt(10, function(err, salt) {
     //         bcrypt.hash(password, salt, function(err, hash) {
-    //             return hash
+    //             password = hash
     //         });
 
     //     });
@@ -159,7 +159,10 @@ app.get('/profile/:id', (req, res) => {
 //     // res === true
 // });
 
-app.listen(4000);
+const PORT = 4000;
+app.listen(PORT, ()=>{
+    console.log(`Server running on PORT ${PORT}`)
+});
 
 
 

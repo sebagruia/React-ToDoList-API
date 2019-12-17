@@ -8,7 +8,7 @@ const db = knex({
     connection: {
         host: '127.0.0.1',
         user: 'postgres',
-        password: 'test123',
+        password: 'test',
         database: 'todolist'
     }
 });
@@ -56,35 +56,44 @@ app.use(cors()); //Cors is for fixing security issues with Chrome
 // ===============
 
 app.get('/', (req, res) => {
-    res.json(dataBase.users);
+    // res.json(dataBase.users);
+    db.select('*').from('users')
+        .then(data=>{
+            res.json(data);
+        })
+        .catch(err=>res.status(400).json("Can't acces database"));
+
 });
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
-    //   // ===This function hashes the password===
-    //   bcrypt.genSalt(10, function(err, salt) {
-    //     bcrypt.hash(password, salt, function(err, hash) {
-    //     });
-    // });
+   
+   db.select('email', 'hash').from('login')
+    .where({'email':email})
+    .then(data=>{
+    // ===This function compares the password to the hashed password===
+         const isValid =  bcrypt.compareSync(password, data[0].hash);
     // =========================================
-    if (email === dataBase.users[0].email && password === dataBase.users[0].password) {
-        // res.send('Succes');  the send() can be used, but "express" comes with json() that has more functionalities
-        res.json(dataBase.users[0]);
-    }
-    else {
-        res.status(400).json('error logging in');
-    }
+       if(isValid){
+          return db.select('*').from('users').where({'email':email})
+           .then(user=>{
+            res.json(user[0])
+           })
+           .catch(err=> res.status(400).json('unable to get user'));
+       }
+       else{
+         res.status(400).json('wrong credentials')
+
+       }
+    })
+    .catch(err=>{
+        res.status(400).json('Wrong Credentials')
+    });
 });
 
 app.post('/register', (req, res) => {
     let { name, email, password } = req.body;
     // ===This function hashes the password===
-    //    bcrypt.genSalt(10, function(err, salt) {
-    //         bcrypt.hash(password, salt, function(err, hash) {
-    //             password = hash
-    //         });
-
-    //     });
     let salt = bcrypt.genSaltSync(10);
     let hash = bcrypt.hashSync(password, salt);
     // =========================================

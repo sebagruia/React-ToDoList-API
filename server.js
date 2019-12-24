@@ -13,40 +13,7 @@ const db = knex({
     }
 });
 
-
-
 const app = express();
-
-const dataBase = {
-    users: [
-        {
-            id: 1,
-            name: 'Seba',
-            email: 'blackthorus@gmail.com',
-            password: '012',
-            container: [],
-            joined: new Date()
-        },
-
-        {
-            id: 2,
-            name: 'Ovi',
-            email: 'ovidiu@gmail.com',
-            password: '234',
-            container: [],
-            joined: new Date()
-        }
-    ],
-
-    login: [
-        {
-            id: '908',
-            hash: '',
-            email: 'blackthorus@gmail.com'
-        }
-    ]
-}
-
 
 //===Middleware===
 app.use(express.urlencoded({ extended: false }));
@@ -58,37 +25,37 @@ app.use(cors()); //Cors is for fixing security issues with Chrome
 app.get('/', (req, res) => {
     // res.json(dataBase.users);
     db.select('*').from('users')
-        .then(data=>{
+        .then(data => {
             res.json(data);
         })
-        .catch(err=>res.status(400).json("Can't acces database"));
+        .catch(err => res.status(400).json("Can't acces database"));
 
 });
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
-   
-   db.select('email', 'hash').from('login')
-    .where({'email':email})
-    .then(data=>{
-    // ===This function compares the password to the hashed password===
-         const isValid =  bcrypt.compareSync(password, data[0].hash);
-    // =========================================
-       if(isValid){
-          return db.select('*').from('users').where({'email':email})
-           .then(user=>{
-            res.json(user[0])
-           })
-           .catch(err=> res.status(400).json('unable to get user'));
-       }
-       else{
-         res.status(400).json('wrong credentials')
 
-       }
-    })
-    .catch(err=>{
-        res.status(400).json('Wrong Credentials')
-    });
+    db.select('email', 'hash').from('login')
+        .where({ 'email': email })
+        .then(data => {
+            // ===This function compares the password to the hashed password===
+            const isValid = bcrypt.compareSync(password, data[0].hash);
+            // =========================================
+            if (isValid) {
+                return db.select('*').from('users').where({ 'email': email })
+                    .then(user => {
+                        res.json(user[0])
+                    })
+                    .catch(err => res.status(400).json('unable to get user'));
+            }
+            else {
+                res.status(400).json('wrong credentials')
+
+            }
+        })
+        .catch(err => {
+            res.status(400).json('Wrong Credentials')
+        });
 });
 
 app.post('/register', (req, res) => {
@@ -105,7 +72,7 @@ app.post('/register', (req, res) => {
             .into('login')
             .returning('email')
             .then(loginEmail => {
-               return trx.insert({
+                return trx.insert({
                     name: name,
                     email: loginEmail[0], //loginEmail[0] because in this way we are selecting the the Object from the Array
                     container: [],
@@ -120,8 +87,8 @@ app.post('/register', (req, res) => {
             .then(trx.commit)
             .catch(trx.rollback)
     })
-    .catch(err => res.status(400).json('Unable to Register. User allready exists'));
-        
+        .catch(err => res.status(400).json('Unable to Register. User allready exists'));
+
 
 
 
@@ -142,34 +109,22 @@ app.get('/profile/:id', (req, res) => {
 });
 
 
-// app.put('/list', (req,res)=>{
-//     const {id} = req.body;
+app.put('/save&exit', (req, res) => {
+    const { email, container } = req.body;
+    db('users')
+   
+        .where({ email: email })
+        .update({container: container})
+        .returning('*')
+    .then(res=>res.json(`User ${user.container.id} was updated`))
+    .catch(err=>res.json('Error Updating User'));
 
-//     db('users')
-//   .where({id:id})
-//   .update({
-//     status: 'archived',
-//     thisKeyIsSkipped: undefined
-//   })
-
-// });
+});
 
 
-// // Load hash from your password DB.
-// bcrypt.compare("B4c0/\/", hash, function(err, res) {
-//     // res === true
-// });
-// bcrypt.compare("not_bacon", hash, function(err, res) {
-//     // res === false
-// });
-
-// // As of bcryptjs 2.4.0, compare returns a promise if callback is omitted:
-// bcrypt.compare("B4c0/\/", hash).then((res) => {
-//     // res === true
-// });
 
 const PORT = 4000;
-app.listen(PORT, ()=>{
+app.listen(PORT, () => {
     console.log(`Server running on PORT ${PORT}`)
 });
 
@@ -193,5 +148,21 @@ app.listen(PORT, ()=>{
                    res = the new user created
    --> "/profile:userId"  req = GET
                           res = the new user created
+   --> "/logout"          req= PUT
+                          res = user container
 
 */
+
+
+
+// CREATE TABLE users(
+//     todolist(# id serial PRIMARY KEY,
+//     todolist(# name varchar(100),
+//     todolist(# email text UNIQUE NOT NULL,
+//     todolist(# container json,
+//     todolist(# joined TIMESTAMP NOT NULL);
+
+
+// {"{\"id\":\"fdgdfg\",\"listItems\":[{\"item\":\"dfgdfg\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"},{\"item\":\"dfgdf\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"},{\"item\":\"dfgdf\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"}]}","{\"id\":\"dfgdf\",\"listItems\":[]}"}
+
+// "{"id":"wawewe","listItems":[{"item":"qqweqwe","lineThrough":null,"uncheckIcon":null,"checkIcon":"none","display":""},{"item":"qweqwe","lineThrough":null,"uncheckIcon":null,"checkIcon":"none","display":""},{"item":"qweqwe","lineThrough":null,"uncheckIcon":null,"checkIcon":"none","display":""}]}"

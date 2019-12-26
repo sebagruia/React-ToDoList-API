@@ -122,10 +122,9 @@ app.put('/save&exit', (req, res) => {
 });
 
 
-
 const PORT = 4000;
-app.listen(PORT, () => {
-    console.log(`Server running on PORT ${PORT}`)
+app.listen(process.env.PORT || PORT, () => {
+    console.log(`Server running on PORT ${process.env.PORT}`)
 });
 
 

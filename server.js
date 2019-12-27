@@ -164,7 +164,7 @@ app.listen(process.env.PORT || PORT, () => {//I'm using "process.env.PORT" becau
 //     todolist(# id serial PRIMARY KEY,
 //     todolist(# name varchar(100),
 //     todolist(# email text UNIQUE NOT NULL,
-//     todolist(# container json,
+//     todolist(# container text[],
 //     todolist(# joined TIMESTAMP NOT NULL);
 
 // CREATE TABLE login(
@@ -172,7 +172,3 @@ app.listen(process.env.PORT || PORT, () => {//I'm using "process.env.PORT" becau
 //     todolist(# hash varchar(100) NOT NULL,
 //     todolist(# email text UNIQUE NOT NULL);
 
-
-// {"{\"id\":\"fdgdfg\",\"listItems\":[{\"item\":\"dfgdfg\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"},{\"item\":\"dfgdf\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"},{\"item\":\"dfgdf\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"}]}","{\"id\":\"dfgdf\",\"listItems\":[]}"}
-
-// "{"id":"wawewe","listItems":[{"item":"qqweqwe","lineThrough":null,"uncheckIcon":null,"checkIcon":"none","display":""},{"item":"qweqwe","lineThrough":null,"uncheckIcon":null,"checkIcon":"none","display":""},{"item":"qweqwe","lineThrough":null,"uncheckIcon":null,"checkIcon":"none","display":""}]}"

@@ -4,12 +4,18 @@ const bcrypt = require('bcryptjs');// A library used for "hashing" the password
 const knex = require('knex');//A library used to connect the server to a database
 
 const db = knex({
-    client: 'pg',
+    client: 'pg', // "pg" the client name should be this one because I'm using "postgres" database
     connection: {
-        host: '127.0.0.1',
-        user: 'postgres',
-        password: 'test',
-        database: 'todolist'
+        // This is the way to connect the server to database when the server lives on localHost
+        // host: '127.0.0.1',
+        // user: 'postgres',
+        // password: 'test',
+        // database: 'todolist'
+        // =================================
+
+        // This is the way to connect the server to heroku database, when the server lives on heroku Cloud
+        connectionString: process.env.DATABASE_URL,
+        ssl: true
     }
 });
 
@@ -28,7 +34,7 @@ app.get('/', (req, res) => {
         .then(data => {
             res.json(data);
         })
-        .catch(err => res.status(400).json("Can't acces database"));
+        .catch(err => res.status(400).json("Can't access database"));
 
 });
 
@@ -123,7 +129,7 @@ app.put('/save&exit', (req, res) => {
 
 
 const PORT = 4000;
-app.listen(process.env.PORT || PORT, () => {
+app.listen(process.env.PORT || PORT, () => {//I'm using "process.env.PORT" because postgres sets it's own URL. "process.env" is a global variable
     console.log(`Server running on PORT ${process.env.PORT}`)
 });
 
@@ -160,6 +166,11 @@ app.listen(process.env.PORT || PORT, () => {
 //     todolist(# email text UNIQUE NOT NULL,
 //     todolist(# container json,
 //     todolist(# joined TIMESTAMP NOT NULL);
+
+// CREATE TABLE login(
+//     todolist(# id serial PRIMARY KEY,
+//     todolist(# hash varchar(100) NOT NULL,
+//     todolist(# email text UNIQUE NOT NULL);
 
 
 // {"{\"id\":\"fdgdfg\",\"listItems\":[{\"item\":\"dfgdfg\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"},{\"item\":\"dfgdf\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"},{\"item\":\"dfgdf\",\"lineThrough\":null,\"uncheckIcon\":null,\"checkIcon\":\"none\",\"display\":\"\"}]}","{\"id\":\"dfgdf\",\"listItems\":[]}"}

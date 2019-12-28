@@ -115,10 +115,20 @@ app.get('/profile/:id', (req, res) => {
 });
 
 
-app.put('/save&exit', (req, res) => {
+app.put('/save', (req, res) => {
     const { email, container } = req.body;
     db('users')
-   
+        .where({ email: email })
+        .update({container: container})
+        .returning('*')
+    .then(res=>res.json(`User ${user.container.id} was updated`))
+    .catch(err=>res.json('Error Updating User'));
+
+});
+
+app.put('/logout', (req, res) => {
+    const { email, container } = req.body;
+    db('users')
         .where({ email: email })
         .update({container: container})
         .returning('*')
